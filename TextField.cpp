@@ -1,0 +1,196 @@
+#include "TextField.h"
+
+
+size_t myEditor::TextField::getIndexPosition(COORD coord)
+{
+	const char* data = owner->getFile()->getData();
+	size_t size = owner->getFile()->getSize();
+ 
+	size_t i = 0;
+	while (coord.Y > 0)
+	{
+		if (i >= size)
+			return size;
+		if (data[i] == '\n')
+			coord.Y -= 1;
+		i++;
+	}
+	i += coord.X;
+
+	return i;
+}
+
+size_t myEditor::TextField::getSizeOfLine(size_t n)
+{
+	return getEndOfLine(n) - getStartOfLine(n);
+}
+
+size_t myEditor::TextField::getStartOfLine(size_t n)
+{
+	return getIndexPosition(COORD{0, short(n)});
+}
+
+size_t myEditor::TextField::getEndOfLine(size_t n)
+{
+	size_t size = owner->getFile()->getSize();
+
+	size_t end_of_line = getStartOfLine(n + 1);
+	if (end_of_line == size)
+		return size;
+	return end_of_line - 1;
+}
+
+void myEditor::TextField::move_screen()
+{
+	COORD consoleSize = getConsoleSize();
+	consoleSize.Y -= 2;
+	consoleSize.X -= 2;
+
+	if (position.Y < screen_position.Y)
+		screen_position.Y = position.Y;
+	if (position.Y > screen_position.Y + consoleSize.Y)
+		screen_position.Y = position.Y - consoleSize.Y;
+
+	if (position.X < screen_position.X)
+		screen_position.X = position.X;
+	if (position.X > screen_position.X + consoleSize.X)
+		screen_position.X = position.X - consoleSize.X;
+}
+
+
+COORD myEditor::TextField::getConsoleSize()
+{
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (GetConsoleScreenBufferInfo(hConsole, &csbi)) {
+		return COORD{ static_cast<short>(csbi.srWindow.Right - csbi.srWindow.Left + 1),
+			          static_cast<short>(csbi.srWindow.Bottom - csbi.srWindow.Top + 1)};
+	}
+	return COORD{ 0, 0 };
+}
+
+void myEditor::TextField::left_cursor()
+{
+	if (getIndexPosition(position) == 0)
+		return;
+	
+	if (position.X > 0)
+		position.X -= 1;
+	else
+	{
+		position.Y -= 1;
+		position.X = getSizeOfLine(position.Y);
+	}
+}
+
+void myEditor::TextField::right_cursor()
+{
+	if (getIndexPosition() == owner->getFile()->getSize())
+		return;
+
+	size_t line_size = getSizeOfLine(position.Y);
+	if (position.X < line_size)
+		position.X += 1;
+	else {
+		position.Y += 1;
+		position.X = 0;
+	}
+}
+
+void myEditor::TextField::down_cursor()
+{
+	if (getEndOfLine(position.Y) == getEndOfLine(position.Y + 1))
+		return;
+
+	if (position.X <= getSizeOfLine(position.Y + 1))
+		position.Y += 1;
+	else
+	{
+		position.Y += 1;
+		position.X = getSizeOfLine(position.Y);
+	}
+}
+
+void myEditor::TextField::up_cursor()
+{
+	if (position.Y == 0)
+		return;
+	
+	if (position.X <= getSizeOfLine(position.Y - 1))
+	{
+		position.Y -= 1;
+	}
+	else
+	{
+		position.Y -= 1;
+		position.X = getSizeOfLine(position.Y);
+	}
+}
+
+void myEditor::TextField::draw()
+{
+	system("cls");
+
+	size_t file_size = owner->getFile()->getSize();
+	const char* data = owner->getFile()->getData();
+	COORD size = getConsoleSize();
+
+	owner->drawUI();
+	std::cout << std::endl;
+	
+	for (size_t i = 0; i < size.Y - 2; i++)
+	{
+		if (getStartOfLine(i) == getSizeOfLine(i - 1))
+			break;
+
+		size_t line_start = getStartOfLine(i + (size_t)screen_position.Y);
+		size_t line_size = getSizeOfLine(i);
+		if (line_size > screen_position.X)
+			 for (size_t j = screen_position.X; j < size.X + screen_position.X; j++)
+			{
+				 if (line_start + j >= file_size) break;
+
+				char ch = data[line_start + j];
+				if (ch == '\n')
+					break;
+				std::cout << ch;
+			}
+		std::cout << '\n';
+	}
+
+	COORD display_position{ position };
+	display_position.Y = display_position.Y - screen_position.Y + 1;
+	display_position.X = display_position.X - screen_position.X;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), display_position);
+}
+
+void myEditor::TextField::update()
+{
+	owner->inputs();
+}
+
+size_t myEditor::TextField::getIndexPosition()
+{
+	return getIndexPosition(position);
+}
+
+void myEditor::TextField::startEditing()
+{
+	edit_circle = true;
+	position.X = 0;
+	position.Y = 0;
+	screen_position.X = 0;
+	screen_position.Y = 0;
+
+	while ( edit_circle)
+	{
+		draw();
+		update();
+		move_screen();
+	}
+}
+
+void myEditor::TextField::stopEditing()
+{
+	edit_circle = false;
+}
