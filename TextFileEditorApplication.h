@@ -15,7 +15,6 @@ namespace myEditor
 	protected:
 		myEditor::TextField* textField;
 
-		virtual void drawUI();
 		virtual void inputs();
 
 		void deleteCharacter();

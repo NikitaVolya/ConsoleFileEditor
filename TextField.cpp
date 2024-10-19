@@ -43,8 +43,8 @@ size_t myEditor::TextField::getEndOfLine(size_t n)
 void myEditor::TextField::move_screen()
 {
 	COORD consoleSize = getConsoleSize();
-	consoleSize.Y -= 2;
-	consoleSize.X -= 2;
+	consoleSize.Y -= owner->getHeaderHeight() + 1;
+	consoleSize.X -= owner->getHeaderHeight() + 1;
 
 	if (position.Y < screen_position.Y)
 		screen_position.Y = position.Y;
@@ -136,32 +136,35 @@ void myEditor::TextField::draw()
 	COORD size = getConsoleSize();
 
 	owner->drawUI();
-	std::cout << std::endl;
 	
-	for (size_t i = 0; i < size.Y - 2; i++)
+	for (size_t i = 0; i < size.Y - owner->getHeaderHeight(); i++)
 	{
-		if (getStartOfLine(i) == getSizeOfLine(i - 1))
+		size_t row = i + screen_position.Y;
+		if (getStartOfLine(row) ==
+			getSizeOfLine(row - 1))
 			break;
 
-		size_t line_start = getStartOfLine(i + (size_t)screen_position.Y);
-		size_t line_size = getSizeOfLine(i);
+		size_t line_start = getStartOfLine(row);
+		size_t line_size = getSizeOfLine(row);
 		if (line_size > screen_position.X)
-			 for (size_t j = screen_position.X; j < size.X + screen_position.X; j++)
+			 for (size_t j = 0; j < size.X; j++)
 			{
-				 if (line_start + j >= file_size) break;
+				 if (line_start + screen_position.X + j >= file_size)
+					 break;
 
-				char ch = data[line_start + j];
+				char ch = data[line_start + screen_position.X + j];
 				if (ch == '\n')
 					break;
 				std::cout << ch;
 			}
-		std::cout << '\n';
+		if (i < size.Y - owner->getHeaderHeight() - 1)
+			std::cout << '\n';
 	}
 
-	COORD display_position{ position };
-	display_position.Y = display_position.Y - screen_position.Y + 1;
-	display_position.X = display_position.X - screen_position.X;
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), display_position);
+	COORD cursor_display_position{0, 0};
+	cursor_display_position.Y = position.Y - screen_position.Y + owner->getHeaderHeight();
+	cursor_display_position.X = position.X - screen_position.X;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursor_display_position);
 }
 
 void myEditor::TextField::update()

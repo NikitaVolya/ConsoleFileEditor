@@ -138,6 +138,7 @@
     <ClCompile Include="TextField.cpp" />
     <ClCompile Include="TextFileEditorApplication.cpp" />
     <ClCompile Include="TextFileFactory.cpp" />
+    <ClCompile Include="UIheader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -150,6 +151,7 @@
     <ClInclude Include="TextField.h" />
     <ClInclude Include="TextFileEditorApplication.h" />
     <ClInclude Include="TextFileFactory.h" />
+    <ClInclude Include="UIheader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

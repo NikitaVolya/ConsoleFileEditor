@@ -10,8 +10,9 @@ namespace myEditor
 	private:
 		bool validSyb(char symb);
 	public:
+		PythonFileEditorApplication();
+
 		void inputs();
-		void drawUI();
 	};
 }
 

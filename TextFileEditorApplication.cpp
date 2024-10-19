@@ -1,24 +1,6 @@
 #include "TextFileEditorApplication.h"
 
 
-void myEditor::TextFileEditorApplication::drawUI()
-{
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
-	std::cout << "[ESC: Exit] ";
-
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
-	std::cout << "[ <= Left] [ => Right] ";
-
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
-	std::cout << "[Ctrl + S: Save] ";
-
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 13);
-	std::cout << "[Ctrl + Shift + S: Save As]";
-
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
-	std::cout << " file size: " << file->getSize();
-}
-
 void myEditor::TextFileEditorApplication::inputs()
 {
 	char user_code = _getch();
@@ -116,6 +98,11 @@ void myEditor::TextFileEditorApplication::insertCharacter(char ch)
 myEditor::TextFileEditorApplication::TextFileEditorApplication() : textField{nullptr}
 {
 	textField = new myEditor::TextField(this);
+
+	header.appendElement("[ESC: Exit]", 12);
+	header.appendElement("[ <= Left] [ => Right]", 11);
+	header.appendElement("[Ctrl + S: Save]", 10);
+	header.appendElement("[Ctrl + Shift + S: Save As]", 13);
 }
 
 myEditor::TextFileEditorApplication::~TextFileEditorApplication()

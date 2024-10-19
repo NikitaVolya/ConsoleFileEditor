@@ -20,6 +20,11 @@ bool myEditor::PythonFileEditorApplication::validSyb(char symb)
 	return false;
 }
 
+myEditor::PythonFileEditorApplication::PythonFileEditorApplication() : TextFileEditorApplication{}
+{
+	header.appendElement("[ execute F10 ]", 2);
+}
+
 void myEditor::PythonFileEditorApplication::inputs()
 {
 	char user_code = _getch();
@@ -75,10 +80,4 @@ void myEditor::PythonFileEditorApplication::inputs()
 			insertCharacter(user_code);
 		break;
 	}
-}
-
-void myEditor::PythonFileEditorApplication::drawUI()
-{
-	TextFileEditorApplication::drawUI();
-	std::cout << " [ execute F10 ]";
 }

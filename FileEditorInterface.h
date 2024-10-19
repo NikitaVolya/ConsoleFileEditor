@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FileInterface.h"
+#include "UIheader.h"
 
 namespace myEditor {
 
@@ -8,6 +9,7 @@ namespace myEditor {
 	{
 	protected:
 		myFiles::FileInterface* file;
+		UIheader header;
 
 		virtual void deleteCharacter() = 0;
 		virtual void insertCharacter(char ch) = 0;
@@ -15,7 +17,8 @@ namespace myEditor {
 	public:
 		FileEditorInterface() : file{ nullptr } {};
 
-		virtual void drawUI() = 0;
+		virtual void drawUI() { header.draw(); };
+		virtual size_t getHeaderHeight() { return header.getHeight(); };
 		virtual void inputs() = 0;
 
 		const myFiles::FileInterface* getFile() { return file; }
