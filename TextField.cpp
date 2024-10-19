@@ -47,14 +47,26 @@ void myEditor::TextField::move_screen()
 	consoleSize.X -= owner->getHeaderHeight() + 1;
 
 	if (position.Y < screen_position.Y)
+	{
+		update_screen = true;
 		screen_position.Y = position.Y;
+	}
 	if (position.Y > screen_position.Y + consoleSize.Y)
+	{
+		update_screen = true;
 		screen_position.Y = position.Y - consoleSize.Y;
+	}
 
 	if (position.X < screen_position.X)
+	{
+		update_screen = true;
 		screen_position.X = position.X;
+	}
 	if (position.X > screen_position.X + consoleSize.X)
+	{
+		update_screen = true;
 		screen_position.X = position.X - consoleSize.X;
+	}
 }
 
 
@@ -129,37 +141,42 @@ void myEditor::TextField::up_cursor()
 
 void myEditor::TextField::draw()
 {
-	system("cls");
-
-	size_t file_size = owner->getFile()->getSize();
-	const char* data = owner->getFile()->getData();
 	COORD size = getConsoleSize();
-
-	owner->drawUI();
-	
-	for (size_t i = 0; i < size.Y - owner->getHeaderHeight(); i++)
+	if (update_screen || last_screen_size.X != size.X || last_screen_size.Y != size.Y)
 	{
-		size_t row = i + screen_position.Y;
-		if (getStartOfLine(row) ==
-			getSizeOfLine(row - 1))
-			break;
+		system("cls");
 
-		size_t line_start = getStartOfLine(row);
-		size_t line_size = getSizeOfLine(row);
-		if (line_size > screen_position.X)
-			 for (size_t j = 0; j < size.X; j++)
-			{
-				 if (line_start + screen_position.X + j >= file_size)
-					 break;
+		size_t file_size = owner->getFile()->getSize();
+		const char* data = owner->getFile()->getData();
 
-				char ch = data[line_start + screen_position.X + j];
-				if (ch == '\n')
-					break;
-				std::cout << ch;
-			}
-		if (i < size.Y - owner->getHeaderHeight() - 1)
-			std::cout << '\n';
+		owner->drawUI();
+
+		for (size_t i = 0; i < size.Y - owner->getHeaderHeight(); i++)
+		{
+			size_t row = i + screen_position.Y;
+			if (getStartOfLine(row) ==
+				getSizeOfLine(row - 1))
+				break;
+
+			size_t line_start = getStartOfLine(row);
+			size_t line_size = getSizeOfLine(row);
+			if (line_size > screen_position.X)
+				for (size_t j = 0; j < size.X; j++)
+				{
+					if (line_start + screen_position.X + j >= file_size)
+						break;
+
+					char ch = data[line_start + screen_position.X + j];
+					if (ch == '\n')
+						break;
+					std::cout << ch;
+				}
+			if (i < size.Y - owner->getHeaderHeight() - 1)
+				std::cout << '\n';
+		}
+
 	}
+	update_screen = false;
 
 	COORD cursor_display_position{0, 0};
 	cursor_display_position.Y = position.Y - screen_position.Y + owner->getHeaderHeight();
@@ -187,13 +204,22 @@ void myEditor::TextField::startEditing()
 
 	while ( edit_circle)
 	{
+		
 		draw();
+		
 		update();
+		
 		move_screen();
+		last_screen_size = getConsoleSize();
 	}
 }
 
 void myEditor::TextField::stopEditing()
 {
 	edit_circle = false;
+}
+
+void myEditor::TextField::update_scr()
+{
+	update_screen = true;
 }

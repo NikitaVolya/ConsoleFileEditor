@@ -73,6 +73,8 @@ void myEditor::TextFileEditorApplication::deleteCharacter()
 	myFiles::TextFileFactory().writeData(file, newData, newSize);
 
 	delete[] newData;
+
+	textField->update_scr();
 }
 
 void myEditor::TextFileEditorApplication::insertCharacter(char ch)
@@ -93,6 +95,8 @@ void myEditor::TextFileEditorApplication::insertCharacter(char ch)
 	myFiles::TextFileFactory().writeData(file, newData, newSize);
 	textField->right_cursor();
 	delete[] newData;
+
+	textField->update_scr();
 }
 
 myEditor::TextFileEditorApplication::TextFileEditorApplication() : textField{nullptr}
@@ -154,6 +158,7 @@ void myEditor::TextFileEditorApplication::saveFile()
 	}
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 	_getch();
+	textField->update_scr();
 }
 
 void myEditor::TextFileEditorApplication::saveFileAs()
@@ -177,6 +182,7 @@ void myEditor::TextFileEditorApplication::saveFileAs()
 	}
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 	_getch();
+	textField->update_scr();
 }
 
 void myEditor::TextFileEditorApplication::start()

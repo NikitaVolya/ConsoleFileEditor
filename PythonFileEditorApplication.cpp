@@ -49,10 +49,12 @@ void myEditor::PythonFileEditorApplication::inputs()
 			saveFileAs();
 		else
 			saveFile();
+		
 		break;
 	case 68:
 		system("cls");
 		myFiles::PythonFileFactory().execute(file);
+		textField->update_scr();
 		break;
 	case -32: //arrows
 		user_code = _getch();
